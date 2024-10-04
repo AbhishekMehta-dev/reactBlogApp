@@ -1,4 +1,4 @@
-import conf from '../conf/conf.js';
+import conf from '../conf/conf';
 import { Client, ID, Databases, Storage, Query } from "appwrite";
 
 export class Service{
@@ -81,21 +81,24 @@ export class Service{
         }
     }
 
-    async getPosts(queries = [Query.equal("status", "active")]){
+    async getPosts(queries = []) {
         try {
+            // Optionally, if the "status" field does exist, make sure it's being queried correctly.
+            if (queries.length === 0) {
+                queries.push(Query.equal("status", "active"));
+            }
+    
             return await this.databases.listDocuments(
                 conf.appwriteDatabaseId,
                 conf.appwriteCollectionId,
-                queries,
-                
-
-            )
+                queries
+            );
         } catch (error) {
             console.log("Appwrite Service :: getPosts :: error", error);
-            return false
+            return false;
         }
     }
-
+    
     // file upload service
 
     async uploadFile(file){
