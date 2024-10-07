@@ -1,6 +1,7 @@
 import conf from '../conf/conf';
 import { Client, ID, Databases, Storage, Query } from "appwrite";
 
+
 export class Service{
     client = new Client();
     databases;
@@ -14,24 +15,31 @@ export class Service{
         this.bucket = new Storage(this.client);
     }
 
-    async createPost({title, slug, content, featuredImage, status, userId}){
-        try {
-            return await this.databases.createDocument(
-                conf.appwriteDatabaseId,
-                conf.appwriteCollectionId,
-                slug,
-                {
-                    title,
-                    content,
-                    featuredImage,
-                    status,
-                    userId,
-                }
-            )
-        } catch (error) {
-            console.log("Appwrite Service :: createPost :: error", error);
-        }
+
+
+async createPost({ title, slug, content, featuredImage, status, userId }) {
+    try {
+        // Use ID.unique() for auto-generating document IDs if you want to skip using slug directly
+        const documentId = ID.unique(); // Automatically generate unique document ID
+
+        return await this.databases.createDocument(
+            conf.appwriteDatabaseId,   // Replace with your Appwrite database ID
+            conf.appwriteCollectionId, // Replace with your Appwrite collection ID
+            documentId,                // Use documentId instead of slug for unique ID generation
+            {
+                title: title,             // Ensure correct data types for each field
+                content: content,         // Text or string
+                featuredImage: featuredImage, // Text or URL
+                status: status,           // Boolean or string (depending on your schema)
+                userId: userId            // Text or string (ensure it matches Appwrite's user model)
+            }
+        );
+    } catch (error) {
+        // Log detailed error information for debugging
+        console.log("Appwrite Service :: createPost :: error", error.message);
     }
+}
+
 
     async updatePost(slug, {title, content, featuredImage, status}){
         try {
